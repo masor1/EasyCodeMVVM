@@ -2,10 +2,9 @@ package com.masorone.easycodemvvm
 
 import android.util.Log
 
-class Doer {
+class Doer(private val logger: Logging){
 
     private var mainThingDone = false
-    private val logger = LoggingTool()
 
     fun doMain() {
         if (!mainThingDone) {
@@ -15,9 +14,6 @@ class Doer {
     }
 }
 
-class LoggingTool {
-
-    fun log(message: String) {
-        Log.d(javaClass.canonicalName, message)
-    }
+interface Logging {
+    fun log(message: String)
 }
