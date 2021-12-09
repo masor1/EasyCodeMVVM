@@ -13,14 +13,37 @@ class ModelTest {
         }
     }
 
+    private class TestTimeTicker : TimeTicker {
+
+        private var callback: TimeTicker.Callback? = null
+
+        var state = 0
+
+        override fun start(callback: TimeTicker.Callback, period: Long) {
+            this.callback = callback
+            state = 1
+        }
+
+        override fun stop() {
+            callback = null
+            state = -1
+        }
+
+        fun tick(times: Int) {
+            for (i in 0 until times)
+                callback?.tick()
+        }
+    }
+
     @Test
     fun test_start_with_saved_value() {
         val testDataSource = TestDataSource()
-        val model = Model(testDataSource)
+        val timerTicker = TestTimeTicker()
+        val model = Model(testDataSource, timerTicker)
         val callback = TestCallback()
         testDataSource.saveInt("", 5)
         model.start(callback)
-        Thread.sleep(10)
+        timerTicker.tick(1)
         val actual = callback.text
         val expected = "6"
         assertEquals(expected, actual)
@@ -29,14 +52,16 @@ class ModelTest {
     @Test
     fun test_stop_after_2_seconds() {
         val testDataSource = TestDataSource()
-        val model = Model(testDataSource)
+        val timeTicker = TestTimeTicker()
+        val model = Model(testDataSource, timeTicker)
         val callback = TestCallback()
         testDataSource.saveInt("", 0)
         model.start(callback)
-        Thread.sleep(2000)
+        timeTicker.tick(2)
         val actual = callback.text
         val expected = "2"
         assertEquals(expected, actual)
+
         model.stop()
         val savedCountActual = testDataSource.getInt("")
         val savedCountExpected = 2

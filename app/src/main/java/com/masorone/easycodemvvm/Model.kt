@@ -4,16 +4,19 @@ import android.util.Log
 import com.masorone.easycodemvvm.data.DataSource
 import java.util.*
 
-class Model(private val dataSource: DataSource) {
+class Model(
+    private val dataSource: DataSource,
+    private val timeTicker: TimeTicker
+    ) {
 
-    private var timer: Timer? = null
-    private val timerTask
-    get() = object : TimerTask() {
-        override fun run() {
+    private val tickerCallback
+    get() = object : TimeTicker.Callback {
+        override fun tick() {
             count++
             textCallback?.updateText(count.toString())
         }
     }
+
     private var textCallback: TextCallback? = null
     private var count = -1
 
@@ -22,14 +25,13 @@ class Model(private val dataSource: DataSource) {
         this.textCallback = textCallback
         if (count < 0)
             count = dataSource.getInt(COUNTER_KEY)
-        timer = Timer()
-        timer?.scheduleAtFixedRate(timerTask, 0, 1000)
+        timeTicker.start(tickerCallback)
     }
 
     fun stop() {
         dataSource.saveInt(COUNTER_KEY, count)
-        timer?.cancel()
-        timer = null
+        timeTicker.stop()
+        textCallback = null
     }
 
     companion object {
