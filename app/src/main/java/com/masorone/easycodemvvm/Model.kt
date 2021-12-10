@@ -1,8 +1,6 @@
 package com.masorone.easycodemvvm
 
-import android.util.Log
 import com.masorone.easycodemvvm.data.DataSource
-import java.util.*
 
 class Model(
     private val dataSource: DataSource,
