@@ -92,4 +92,32 @@ class ModelTest {
         val expectedText = "15"
         assertEquals(expectedText, actualText)
     }
+
+    @Test
+    fun test_die_app() {
+        var dataSource: TestDataSource? = TestDataSource()
+        var timeTicker: TestTimeTicker? = TestTimeTicker()
+        var model: Model? = Model(dataSource!!, timeTicker!!)
+        var callback: TestCallback? = TestCallback()
+        dataSource.saveInt("", 0)
+        model?.start(callback!!)
+        timeTicker.tick(15)
+        model?.stop()
+        val savedNum = dataSource.getInt("")
+        dataSource = null
+        timeTicker = null
+        model = null
+        callback = null
+        val newDataSource = TestDataSource()
+        newDataSource.saveInt("", savedNum)
+        val newTimeTicker = TestTimeTicker()
+        val newModel = Model(newDataSource, newTimeTicker)
+        val newCallback = TestCallback()
+        newModel.start(newCallback)
+        newTimeTicker.tick(15)
+
+        val actual = newCallback.text
+        val expected = "30"
+        assertEquals(expected, actual)
+    }
 }
